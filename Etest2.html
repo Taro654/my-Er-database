@@ -126,6 +126,17 @@
             background-color: #ffffff;
         }
 
+        .bottom-div {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* ...既存のスタイル... */
+
+    /* ★ダブルタップズームを無効化する魔法のコード */
+    touch-action: manipulation;
+}
+
         /* 年齢確認ゲート */
         .age-gate {
             position: fixed;
@@ -139,6 +150,7 @@
             align-items: center;
             justify-content: center;
         }
+        
 
         .age-gate.hidden {
             display: none;
