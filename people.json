@@ -1,29 +1,5 @@
 [
   {
-    "id": "15365",
-    "name": "麻美ゆま",
-    "furigana": "あさみゆま",
-    "features": ["ソリューション営業", "長期関係構築", "課題発見力"],
-    "category": "営業",
-    "imageUrl": "http://pics.dmm.co.jp/mono/actjpgs/thumbnail/asami_yuma.jpg",
-    "imageUrlLarge": "http://pics.dmm.co.jp/mono/actjpgs/asami_yuma.jpg",
-    "height": 159,
-    "bloodType": "AB型",
-    "birthplace": "山梨県",
-    "birthday": "1996-08-13",
-    "debutDate": "2019-04-01",
-    "measurements": { "b": 96, "w": 55, "h": 82 },
-    "hobbies": ["ピアノ", "美術館巡り"],
-    "videoThumbnail": "https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Flist%2F%3Factress%3D15365&af_id=affiliate-990&ch=api",
-    "videoUrl": "https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Flist%2F%3Factress%3D15365&af_id=affiliate-990&ch=api",
-    "affiliateLink": "https://example.com/affiliate/P020",
-    "portfolioImages": [
-      { "url": "https://picsum.photos/800/600?random=58", "id": "IMG-020-A", "projectName": "課題解決提案", "link": "https://example.com/project58" },
-      { "url": "https://picsum.photos/700/800?random=59", "id": "IMG-020-B", "projectName": "長期パートナーシップ", "link": "https://example.com/project59" },
-      { "url": "https://picsum.photos/600/700?random=60", "id": "IMG-020-C", "projectName": "顧客課題分析", "link": "https://example.com/project60" }
-    ]
-},
-  {
     "id": "P001",
     "name": "山田太郎",
     "furigana": "やまだ たろう",
