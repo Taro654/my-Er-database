@@ -290,40 +290,53 @@
             display: block;
         }
 
-        /* 固定メニュー */
-        .fixed-menu {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-around;
-            padding: 1px 0;
-            z-index: 100;
-        }
 
-        .fixed-menu-item {
-            font-size: 0.75em;
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            background: none;
-            color: #666;
-        }
+       /* 固定メニュー全体の調整 */
+/* --- 下部メニューをより透明でモダンに --- */
+.fixed-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); /* ホームバー対応 */
+    box-shadow: 0 -2px 20px rgba(0,0,0,0.05);
+    z-index: 2000;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+}
 
-        .fixed-menu-item:hover {
-            color: #7c009e;
-        }
+.menu-item {
+    border: none;
+    background: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* ふわっとアニメ */
+    flex: 1;
+}
 
-        .fixed-menu-item.active {
-            color: #db007c;
-            font-weight: bold;
-        }
+.menu-item.active {
+    color: #db007c;
+    transform: scale(1.3) translateY(-5px); /* 30%拡大＋浮遊感 */
+    filter: drop-shadow(0 0 10px rgba(219, 0, 124, 0.2));
+}
+
+.menu-item span {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+
+.menu-item label {
+    font-size: 0.65rem;
+    font-weight: bold;
+}
 
         .fixed-menu-icon {
             font-size: 1.5em;
@@ -501,6 +514,15 @@
         bottom: 10px;
         right: 15px;
     }
+    @media (max-width: 600px) {
+    .next-btn {
+        margin-top: 10px; /* 余白を適度に詰める */
+        padding: 12px;
+        /* 少し浮かせて、背景の透明感と合わせる */
+        background: linear-gradient(45deg, rgba(124, 0, 158, 0.8), rgba(219, 0, 124, 0.8));
+        backdrop-filter: blur(5px);
+    }
+}
 }
         .person-card {
             position: relative;
@@ -1171,18 +1193,18 @@
 
     <!-- 固定メニュー -->
     <div class="fixed-menu">
-        <button class="fixed-menu-item active" onclick="switchPage('database')">
-            <div class="fixed-menu-icon">📋</div>
-            <div>データベース</div>
-        </button>
-        <button class="fixed-menu-item" onclick="switchPage('shuffle')">
-            <div class="fixed-menu-icon">🎲</div>
-            <div>シャッフル</div>
-        </button>
-        <button class="fixed-menu-item" onclick="switchPage('favorites')">
-            <div class="fixed-menu-icon">❤️</div>
-            <div>お気に入り</div>
-        </button>
+       <button class="menu-item" onclick="switchPage('database')">
+        <span>📋</span>
+        <label>データベース</label>
+    </button>
+    <button class="menu-item active" onclick="switchPage('shuffle')">
+        <span>🎲</span>
+        <label>シャッフル</label>
+    </button>
+    <button class="menu-item" onclick="switchPage('favorites')">
+        <span>❤️</span>
+        <label>お気に入り</label>
+    </button>
     </div>
 
     <script>
@@ -1256,32 +1278,54 @@ loadPeopleData();
 
         // ページ切り替え
 function switchPage(pageName) {
+    // 1. ページ切り替えの基本処理
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.fixed-menu-item').forEach(item => item.classList.remove('active'));
-
     const targetPage = document.getElementById(pageName + 'Page');
-    if (targetPage) {
-        targetPage.classList.add('active');
-    }
+    if (targetPage) targetPage.classList.add('active');
 
-    if (pageName === 'privacy') displayPolicy('privacy');
-    if (pageName === 'terms') displayPolicy('terms');
-    if (pageName === 'disclaimer') displayPolicy('disclaimer');
+    // 2. 下部メニューのアクティブ化（定義を追加してエラーを防止）
+    const menuItems = document.querySelectorAll('.menu-item'); // ★ここを追加
+    menuItems.forEach(item => item.classList.remove('active'));
 
+    // 3. ページごとの個別処理
     if (pageName === 'shuffle') {
-        document.querySelectorAll('.fixed-menu-item')[1].classList.add('active');
-    } else if (pageName === 'database') {
-        document.querySelectorAll('.fixed-menu-item')[0].classList.add('active');
-        renderDatabase(); // ここで正しく描画されます
-    } else if (pageName === 'favorites') {
-        document.querySelectorAll('.fixed-menu-item')[2].classList.add('active');
+        if (menuItems[1]) menuItems[1].classList.add('active');
+        
+        // ★オートスクロール処理
+        setTimeout(() => {
+            const card = document.querySelector('.person-card');
+            if (card) {
+                // カードの少し上（ヘッダー分80pxを考慮）に移動
+                const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
+                window.scrollTo({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+            }
+        }, 150); // 描画時間を少し長めに確保
+    } 
+    else if (pageName === 'database') {
+        if (menuItems[0]) menuItems[0].classList.add('active');
+        renderDatabase();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } 
+    else if (pageName === 'favorites') {
+        if (menuItems[2]) menuItems[2].classList.add('active');
         renderFavorites();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } 
+    else {
+        // ポリシー系などのページ
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // 4. ポリシー表示と履歴保存
+    if (['privacy', 'terms', 'disclaimer'].includes(pageName)) {
+        displayPolicy(pageName);
+    }
     if (['shuffle', 'database', 'favorites'].includes(pageName)) {
         lastPage = pageName;
     }
-    window.scrollTo(0, 0);
 }
 
         // お問い合わせ送信
@@ -1577,7 +1621,6 @@ window.addEventListener('scroll', () => {
 
     // ★現在のページが「shufflePage」かつ「active」クラスを持っているか判定
     const isShufflePage = document.getElementById('shufflePage').classList.contains('active');
-    
     if (currentScrollY > lastScrollY && currentScrollY > 1) {
         // 下にスクロール ＆ 1px以上進んだら隠す
         header.classList.add('header-hidden');
