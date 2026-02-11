@@ -1214,25 +1214,27 @@ let policyData = null; // ★追加：規約データを保存する変数
 
 async function loadPeopleData() {
     try {
-        // 人物データの読み込み
         const response = await fetch('people.json'); 
         if (!response.ok) throw new Error('人物データの読み込みに失敗しました');
         people = await response.json(); 
 
-        // ★規約データの読み込み
         const policyRes = await fetch('policy.json');
-        if (!policyRes.ok) {
-            console.warn('policy.jsonが見つかりません。ファイル名を確認してください。');
-        } else {
-            policyData = await policyRes.json();
-        }
+        if (policyRes.ok) policyData = await policyRes.json();
 
-        // 初期表示
         if (people.length > 0) {
             shuffledPeople = shuffleArray([...people]);
             currentIndex = 0;
             updateCounter();
             displayPerson(shuffledPeople[0]);
+
+            // ★追加：初期起動時（シャッフル画面）のオートスクロールを実行
+            setTimeout(() => {
+                const card = document.querySelector('.person-card');
+                if (card) {
+                    const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                }
+            }, 500); // 初回は画像などの読み込みを待つため少し長めに設定
         }
     } catch (error) {
         console.error('読み込みエラー:', error);
