@@ -638,6 +638,16 @@
             transition: all 0.3s;
             margin-bottom: 80px;
         }
+        .bottom-div {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* ...既存のスタイル... */
+
+    /* ★ダブルタップズームを無効化する魔法のコード */
+    touch-action: manipulation;
+}
         .next-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(219, 0, 124, 0.4);
