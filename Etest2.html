@@ -22,9 +22,24 @@
     <style>
         /* スマホ向けの調整 */
 @media (max-width: 600px) {
-    /* 1画面に収めるための極限調整 */
-    body { padding-top: 60px; }
+    .site-header {
+        height: 70px; /* 少し高さを出す */
+        padding-top: 15px; /* ★上部に隙間を作り、ボタンを下げて押しやすくする */
+        display: flex;
+        align-items: center;
+    }
+
+    /* メインコンテンツがヘッダーに隠れないよう調整 */
+    body {
+        padding-top: 85px; 
+    }
     
+    /* サイドメニューボタン（ハンバーガー）の押しやすさ向上 */
+    .menu-trigger {
+        margin-top: 5px;
+        padding: 10px; /* タップ範囲を広げる */
+    }
+}
     .person-card {
         padding: 10px; /* 余白を最小限に */
         margin: 5px 0;
@@ -61,7 +76,7 @@
     user-select: none;
     -webkit-user-select: none;
 }
-}
+
     /* データベースページの検索エリアを縦並びに */
     #databasePage .filter-container {
         display: flex;
@@ -1139,8 +1154,75 @@
     visibility: hidden;  /* ★最初は隠しておく */
     transition: opacity 0.5s ease;
 }
+.person-card, .database-card, .favorite-item, .favorite-item-card {
+    position: relative !important;
+    overflow: hidden; /* 枠外へのはみ出しを防止 */
+}
+
+/* お気に入りボタンの位置固定（全ページ共通） */
+.favorite-btn {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+/* --- スマホ・レイアウト最終補正 --- */
+
+/* 1. 固定メニューを画面最下部に張り付かせ、浮き上がりを防止 */
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    /* iPhoneの底面バーを考慮 */
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 2. お気に入りページのアイコン暴走（3つ並んで上がる等）を防止 */
+#favoritesPage .favorite-item, 
+#favoritesPage .person-card, 
+.person-card, 
+.database-card {
+    position: relative !important; /* 親要素を基準にする */
+    overflow: hidden;
+}
+
+/* ハートアイコン単体を右上に強制固定 */
+.favorite-btn {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    left: auto !important; /* 左側に寄るのを防ぐ */
+    margin: 0 !important;
+}
+
+/* 3. スマホ版ヘッダーの位置を下げて押しやすくする */
+@media (max-width: 600px) {
+    .site-header {
+        height: 80px !important; /* 高さを広げる */
+        padding-top: 25px !important; /* 上から下げてノッチ回避 */
+        display: flex;
+        align-items: center;
+    }
+    
+    /* コンテンツの開始位置も連動して下げる */
+    body {
+        padding-top: 90px !important;
+    }
+}
     </style>
 </head>
+<!--CSS終わり-->
 <body>
    <div id="splash-screen">
     <div class="splash-content">
