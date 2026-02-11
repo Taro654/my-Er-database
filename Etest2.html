@@ -1227,18 +1227,33 @@ async function loadPeopleData() {
             updateCounter();
             displayPerson(shuffledPeople[0]);
 
-            // ★追加：初期起動時（シャッフル画面）のオートスクロールを実行
-            setTimeout(() => {
-                const card = document.querySelector('.person-card');
-                if (card) {
-                    const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
-                    window.scrollTo({ top: offset, behavior: 'smooth' });
-                }
-            }, 500); // 初回は画像などの読み込みを待つため少し長めに設定
+            // ★スマホ対策：画像が完全に読み込まれるのを待ってから位置を計算
+            const firstImg = document.querySelector('.profile-image');
+            if (firstImg) {
+                firstImg.onload = () => scrollToCard(); // 読み込み完了時に実行
+                // すでに読み込まれていた場合（キャッシュ）の保険
+                if (firstImg.complete) scrollToCard();
+            } else {
+                scrollToCard();
+            }
         }
     } catch (error) {
         console.error('読み込みエラー:', error);
     }
+}
+
+// スクロール処理を共通関数化
+function scrollToCard() {
+    setTimeout(() => {
+        const card = document.querySelector('.person-card');
+        if (card) {
+            const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({
+                top: offset,
+                behavior: 'smooth'
+            });
+        }
+    }, 300); // 描画の最終確定を待つ
 }
 
 
@@ -1280,48 +1295,32 @@ loadPeopleData();
 
         // ページ切り替え
 function switchPage(pageName) {
-    // 1. ページ切り替えの基本処理
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const targetPage = document.getElementById(pageName + 'Page');
     if (targetPage) targetPage.classList.add('active');
 
-    // 2. 下部メニューのアクティブ化（定義を追加してエラーを防止）
-    const menuItems = document.querySelectorAll('.menu-item'); // ★ここを追加
+    const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => item.classList.remove('active'));
 
-    // 3. ページごとの個別処理
     if (pageName === 'shuffle') {
         if (menuItems[1]) menuItems[1].classList.add('active');
         
-        // ★オートスクロール処理
-        setTimeout(() => {
-            const card = document.querySelector('.person-card');
-            if (card) {
-                // カードの少し上（ヘッダー分80pxを考慮）に移動
-                const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
-                window.scrollTo({
-                    top: offset,
-                    behavior: 'smooth'
-                });
-            }
-        }, 150); // 描画時間を少し長めに確保
-    } 
-    else if (pageName === 'database') {
+        // ★スマホの描画サイクルに合わせて実行
+        requestAnimationFrame(() => {
+            setTimeout(scrollToCard, 100);
+        });
+    } else if (pageName === 'database') {
         if (menuItems[0]) menuItems[0].classList.add('active');
         renderDatabase();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } 
-    else if (pageName === 'favorites') {
+    } else if (pageName === 'favorites') {
         if (menuItems[2]) menuItems[2].classList.add('active');
         renderFavorites();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } 
-    else {
-        // ポリシー系などのページ
+    } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 4. ポリシー表示と履歴保存
     if (['privacy', 'terms', 'disclaimer'].includes(pageName)) {
         displayPolicy(pageName);
     }
