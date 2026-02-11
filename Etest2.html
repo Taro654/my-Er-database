@@ -367,7 +367,7 @@
     transition: transform 0.3s; /* 追加 */
 }
 /* 追加 */
-.fixed-menu.hidden-menu {
+.fixed-menu.favorite-btn {
     transform: translateY(100%);
 }
 
@@ -729,23 +729,6 @@
             display: block;
         }
 
-        .back-btn-top {
-            display: inline-block;
-            background: #999;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            font-size: 0.55em;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-
-        .back-btn-top:hover {
-            background: #777;
-        }
 
         .detail-header {
             text-align: center;
@@ -772,6 +755,23 @@
             display: block;
             border: 6px solid #7c009e;
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+          .back-btn-top {
+            display: inline-block;
+            background: #999;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 0.55em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .back-btn-top:hover {
+            background: #777;
         }
 
         /* ビデオセクション */
@@ -928,16 +928,21 @@
             font-family: 'Courier New', monospace;
             margin-bottom: 20px;
         }
-        .back-btn {
-       position: static !important; /* 絶対配置を解除 */
-        display: inline-block !important;
-        margin-right: 15px; /* カテゴリとの間隔 */
-        padding: 5px 15px;
-        background: #eee;
-        border-radius: 20px;
-        vertical-align: middle;
-        font-size: 14px;
-    }
+      .back-btn {
+            display: block;
+            width: 100%;
+            background: #666;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            margin-bottom: 80px;
+            transition: all 0.3s;
+        }
         .back-btn:hover {
             background: #555;
         }
@@ -1281,6 +1286,58 @@ body #favoritesPage, body #shufflePage, body #databasePage {
 body.detail-open .fixed-menu {
     display: none !important;
 }
+/* 1. ヘッダーを正しい位置に戻し、サイドメニューの重なりを解消 */
+.site-header {
+    top: 0 !important;
+    z-index: 1000 !important;
+}
+
+/* 2. サイドメニューのボタンを押しやすく調整 */
+.menu-trigger {
+    height: 44px;
+    width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 3. 詳細ページ：上部の余白確保と戻るボタンの横並び */
+@media (max-width: 600px) {
+    #detailPage {
+        padding-top: 100px !important; /* ヘッダーとの被り防止 */
+    }
+}
+
+/* 戻るボタンとカテゴリを横並びにする専用クラス */
+.detail-top-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+.back-btn-small {
+    padding: 6px 12px;
+    border-radius: 15px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 4. 固定メニューの再表示をCSSでバックアップ */
+.fixed-menu {
+    position: fixed !important;
+    bottom: 0 !important;
+    display: flex !important; /* デフォルトで表示 */
+    z-index: 9999 !important;
+}
+
+/* 詳細ページが開いている時だけ消す */
+body.detail-open .fixed-menu {
+    display: none !important;
+}
 }
     </style>
 </head>
@@ -1421,8 +1478,8 @@ body.detail-open .fixed-menu {
     <div class="page" id="detailPage">
         <button class="back-btn-top" onclick="backToList()">← 戻る</button>
         <div id="detailContent"></div>
-        <button class="back-btn" onclick="backToList()">← 一覧に戻る</button>
-    </div>
+         <button class="back-btn" onclick="backToList()">← 一覧に戻る</button>
+</div>
 
     <!-- お問い合わせページ -->
     <div class="page policy-page" id="contactPage">
@@ -1960,21 +2017,19 @@ function backToList() {
 
 // --- サイドメニュー・スワイプ閉鎖（完全版） ---
 (function() {
-    let startX = 0;
-    const sMenu = document.getElementById('sideMenu');
-    if (!sMenu) return;
+    let sX = 0;
+    const menu = document.getElementById('sideMenu');
+    if (!menu) return;
 
-    sMenu.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].pageX; // pageXを使用
+    menu.addEventListener('touchstart', (e) => {
+        sX = e.touches[0].pageX;
     }, {passive: true});
 
-    sMenu.addEventListener('touchend', (e) => {
-        const endX = e.changedTouches[0].pageX;
-        // 右方向へ60px以上スワイプされたか判定
-        if (endX - startX > 60) {
-            if (sMenu.classList.contains('open')) {
-                toggleSideMenu();
-            }
+    menu.addEventListener('touchend', (e) => {
+        const eX = e.changedTouches[0].pageX;
+        // 右に60px以上スワイプ 且つ メニューが開いている時
+        if (eX - sX > 60 && menu.classList.contains('open')) {
+            toggleSideMenu();
         }
     }, {passive: true});
 })();
@@ -2034,7 +2089,15 @@ function handleSwipe() {
         toggleSideMenu();
     }
 }
-
+// 一覧に戻る
+        function backToList() {
+            document.getElementById('detailPage').classList.remove('active');
+            switchPage(lastPage);
+            window.scrollTo(0, 0);
+        }
+         // 初期表示
+        shuffledPeople = shuffleArray(shuffledPeople);
+        displayPerson(shuffledPeople[0]);
     </script>
     <!--Javascript終わり-->
 </body>
