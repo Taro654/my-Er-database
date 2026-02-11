@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="人物名鑑 - あなたのお気に入りを見つけよう">
     <meta name="keywords" content="人物名鑑,データベース,プロフィール">
     <!--スマホ用-->
@@ -1800,6 +1801,15 @@ function backToList() {
 }
         // 初期表示
   
+        // ボタンのダブルタップによるズームをJavaScriptで阻止
+document.addEventListener('touchend', function (event) {
+    var now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault(); // 300ms以内の連続タップ（ダブルタップ）を無効化
+    }
+    lastTouchEnd = now;
+}, false);
+var lastTouchEnd = 0;
     </script>
 </body>
 </html>
