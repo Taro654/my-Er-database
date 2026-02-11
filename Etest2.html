@@ -23,7 +23,7 @@
         /* スマホ向けの調整 */
 @media (max-width: 600px) {
     .site-header {
-height: 60px; /* 70pxから60pxに縮小 */
+height: 50px; /* 70pxから60pxに縮小 */
     padding-top: 10px; /* 余白を詰める */
         display: flex;
         align-items: center;
@@ -34,12 +34,12 @@ height: 60px; /* 70pxから60pxに縮小 */
 
     /* メインコンテンツがヘッダーに隠れないよう調整 */
     body {
-        padding-top: 85px; 
+        padding-top: 45px; 
     }
     
     /* サイドメニューボタン（ハンバーガー）の押しやすさ向上 */
     .menu-trigger {
-        margin-top: 5px;
+        margin-top: 50px;
         padding: 10px; /* タップ範囲を広げる */
     }
 }
@@ -56,7 +56,7 @@ height: 60px; /* 70pxから60pxに縮小 */
         height: 150px;
         margin: 5px auto;
     }
-.category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
+
     .category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
 
     .features li {
@@ -67,7 +67,7 @@ height: 60px; /* 70pxから60pxに縮小 */
         overflow: hidden;
         text-overflow: ellipsis;
     }
-.category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
+
     .next-btn {
         margin-top: 5px;
         padding: 10px;
@@ -103,7 +103,13 @@ height: 60px; /* 70pxから60pxに縮小 */
     .person-card {
         margin: 10px 0; /* カードの横幅をいっぱいにする */
     }
-  
+  /* 検索・フィルタリングのスタイル */
+.filter-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
 .bottom-div {
     position: fixed;
     bottom: 0;
@@ -114,13 +120,7 @@ height: 60px; /* 70pxから60pxに縮小 */
     /* ★ダブルタップズームを無効化する魔法のコード */
     touch-action: manipulation;
 }
-/* 検索・フィルタリングのスタイル */
-.filter-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 0 5px;
-}
+
 
 #searchInput {
     flex: 2;
@@ -132,7 +132,7 @@ height: 60px; /* 70pxから60pxに縮小 */
 
 #categorySelect {
     flex: 1;
-    padding: 12px;
+    padding: 14px;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f9f9f9;
@@ -232,7 +232,7 @@ height: 60px; /* 70pxから60pxに縮小 */
             left: 0;
             right: 0;
             background: linear-gradient(45deg, #7c009e, #db007c);
-            padding: 15px 20px;
+            padding: 6px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -277,7 +277,7 @@ height: 60px; /* 70pxから60pxに縮小 */
         /* サイドメニュー */
         .side-menu {
             position: fixed;
-            top: 0;
+            top: -1000;
             right: -300px;
             width: 300px;
             height: 100%;
@@ -311,13 +311,13 @@ height: 60px; /* 70pxから60pxに縮小 */
         }
 
         .menu-section {
-            margin-bottom: 30px;
+            margin-bottom: 0px;
         }
 
         .menu-section h3 {
             color: #7c009e;
-            border-bottom: 2px solid #db007c;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #db007c;
+            padding-bottom: 1px;
             margin-bottom: 15px;
         }
 
@@ -474,25 +474,32 @@ body.detail-open .fixed-menu {
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     overflow: hidden; /* ★はみ出しを完全にカット */
+    
 }
+/*カテゴリーの見た目*/
        .filter-header {
     display: flex;
+     padding-bottom: 50px !important;
     justify-content: flex-start; /* 左に詰める */
     align-items: center;
     gap: 8px;
     cursor: pointer;
     margin-bottom: 0; /* 閉じた時の隙間をゼロに */
+     padding: 10px 0 -10px 0; /* 上下の余白を微調整 */
 }
+
         .filter-header h3 {
     margin: 0;
     color: #555;
     font-size: 0.95em;
     white-space: nowrap; /* ★改行を防止 */
+    
 }
         .toggle-icon {
             font-size: 1.0em;
             color: #7c009e;
             transition: transform 0.4s;
+             padding: 10px 0 5px 0; /* 上下の余白を微調整 */
         }
         .toggle-icon.collapsed {
             transform: rotate(-90deg);
@@ -504,14 +511,17 @@ body.detail-open .fixed-menu {
     overflow-x: auto; /* 横スクロールを許可 */
     -webkit-overflow-scrolling: touch; /* iOSのスクロールを滑らかに */
     gap: 8px;
-    padding: 10px 0 5px 0; /* 上下の余白を微調整 */
+    padding: 1px 0 5px 0; /* 上下の余白を微調整 */
+   
     scrollbar-width: none; /* スクロールバーを隠す(Firefox) */
     transition: all 0.3s ease; /* 開閉時のアニメーション */
+    
 }
 
 /* ★閉じた時は高さゼロにして、余白も消す */
 .filter-buttons::-webkit-scrollbar {
     display: none; /* スクロールバーを隠す(Chrome/Safari) */
+ 
 }
 
 .filter-buttons.collapsed {
@@ -519,7 +529,10 @@ body.detail-open .fixed-menu {
     padding-top: 0;
     padding-bottom: 0;
     margin-top: 0;
+    padding-top: 0px !important; 
+    
 }
+
      /* お気に入りのグラデーションボタン */
 .filter-btn {
     flex: 0 0 auto; /* ★幅を自動にしつつ、縮ませない */
@@ -560,8 +573,8 @@ body.detail-open .fixed-menu {
     }
     @media (max-width: 600px) {
     .next-btn {
-        margin-top: 10px; /* 余白を適度に詰める */
-        padding: 12px;
+        margin-top: 1px; /* 余白を適度に詰める */
+        padding: 1px;
         /* 少し浮かせて、背景の透明感と合わせる */
         background: linear-gradient(45deg, rgba(124, 0, 158, 0.8), rgba(219, 0, 124, 0.8));
         backdrop-filter: blur(5px);
@@ -659,7 +672,7 @@ body.detail-open .fixed-menu {
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
             transition: all 0.3s;
-           margin-bottom: 120px; 
+           margin-bottom: 10px; 
 
     touch-action: manipulation;
     -webkit-user-select: none;
@@ -1238,7 +1251,7 @@ body #favoritesPage, body #shufflePage, body #databasePage {
 @media (max-width: 600px) {
     .side-menu {
         top: 0 !important;
-        padding-top: 80px !important; /* ヘッダーの高さ分下げる */
+        padding-top: 10px !important; /* ヘッダーの高さ分下げる */
     }
     /* --- 最終レイアウト補正 --- */
 
@@ -1255,7 +1268,7 @@ body #favoritesPage, body #shufflePage, body #databasePage {
 #shufflePage.page.active {
     display: flex !important;
     flex-direction: column !important;
-    min-height: calc(100vh - 130px) !important;
+    min-height: calc(100vh - 300px) !important;
     padding-bottom: 20px !important;
     box-sizing: border-box !important;
 }
