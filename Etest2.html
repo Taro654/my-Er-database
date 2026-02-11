@@ -22,6 +22,57 @@
     <style>
         /* スマホ向けの調整 */
 @media (max-width: 600px) {
+    /* 1画面に収めるための極限調整 */
+    body { padding-top: 60px; }
+    
+    .person-card {
+        padding: 10px; /* 余白を最小限に */
+        margin: 5px 0;
+        border-radius: 20px;
+    }
+
+    .person-card h3 { font-size: 1.4em; margin: 5px 0; }
+
+    .profile-image {
+        width: 150px; /* 画像をさらにコンパクトに */
+        height: 150px;
+        margin: 5px auto;
+    }
+
+    .category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
+
+    .features li {
+        padding: 6px;
+        font-size: 0.8em;
+        margin: 3px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .next-btn {
+        margin-top: 5px;
+        padding: 10px;
+        font-size: 1em;
+    }
+}
+    /* データベースページの検索エリアを縦並びに */
+    #databasePage .filter-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* 検索窓とセレクトボックスの間の隙間 */
+        padding: 10px;
+    }
+
+    #searchInput, #categorySelect {
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box; /* 枠線がはみ出さないように */
+        border: 1px solid #ddd; /* 綺麗な1本線に */
+        border-radius: 8px; /* 四隅を丸くして独立させる */
+        height: 45px; /* 押しやすい高さ */
+    }
+
     body {
         padding: 60px 10px 80px 10px; /* 余白を少し詰める */
     }
@@ -33,7 +84,7 @@
     padding-bottom: env(safe-area-inset-bottom); /* iPhoneのホームバー対策 */
         padding: 5px 0; /* 下部メニューをスマホで押しやすく */
     }
-}
+
 /* 検索・フィルタリングのスタイル */
 .filter-container {
     display: flex;
@@ -1357,8 +1408,20 @@ function displayPolicy(type) {
 }
 
 function displayPerson(person) {
-    if (!person) return;
-    const featuresHTML = (person.features || []).map(f => `<li>${f}</li>`).join('');
+   // 人物を表示する関数（PC/スマホ出し分け版）
+    // データチェック
+    if (!person || !person.features) {
+        console.warn("表示する人物データが見つかりません:", person);
+        return;
+    }
+
+    // スマホかどうか判定（画面幅600px以下）
+    const isMobile = window.innerWidth <= 600;
+    
+    // スマホなら最初の1つだけ、PCなら全部出す
+    const displayFeatures = isMobile ? [person.features[0]] : person.features;
+    const featuresHTML = displayFeatures.map(f => `<li>${f}</li>`).join('');
+
     const isFavorited = favorites.includes(person.id);
     const imageHTML = person.imageUrl
         ? `<img src="${person.imageUrl}" alt="${person.name}" class="profile-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -1374,8 +1437,12 @@ function displayPerson(person) {
                 </div>
                 <h3>${person.name}</h3>
                 ${imageHTML}
-                <span class="category">${person.category || '未分類'}</span>
-                <div class="features"><ul>${featuresHTML}</ul></div>
+                <span class="category">${person.category}</span>
+                <div class="features">
+                    <ul>
+                        ${featuresHTML}
+                    </ul>
+                </div>
             </div>
         `;
     }
