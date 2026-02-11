@@ -54,7 +54,13 @@
         margin-top: 5px;
         padding: 10px;
         font-size: 1em;
-    }
+        /* ダブルタップズームを無効化 */
+    touch-action: manipulation;
+    
+    /* ユーザーが誤ってテキストを選択（青いハイライト）するのも防ぐと、よりプロっぽくなります */
+    user-select: none;
+    -webkit-user-select: none;
+}
 }
     /* データベースページの検索エリアを縦並びに */
     #databasePage .filter-container {
