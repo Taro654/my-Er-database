@@ -1251,13 +1251,18 @@ body #favoritesPage, body #shufflePage, body #databasePage {
 }
 
 /* シャッフルページ全体の高さを画面いっぱいに設定 */
-#shufflePage.page {
+/* 「.active」が付いている時だけ、表示してFlexboxを有効にする */
+#shufflePage.page.active {
     display: flex !important;
     flex-direction: column !important;
-    /* 画面全高からヘッダー(60px)とメニュー(70px)程度を引いた高さを確保 */
     min-height: calc(100vh - 130px) !important;
     padding-bottom: 20px !important;
     box-sizing: border-box !important;
+}
+
+/* アクティブじゃない時は、しっかり隠すための設定（念のため追加） */
+#shufflePage.page:not(.active) {
+    display: none !important;
 }
 
 /* 隙間を埋めて押し下げるパーツ */
