@@ -1214,17 +1214,23 @@
 
 /* 3. スマホ版ヘッダーの位置を下げて押しやすくする */
 @media (max-width: 600px) {
-    .site-header {
-        height: 80px !important; /* 高さを広げる */
-        padding-top: 25px !important; /* 上から下げてノッチ回避 */
-        display: flex;
-        align-items: center;
+    #detailPage {
+        padding-top: 90px !important;
+        padding-bottom: 20px;
     }
     
-    /* コンテンツの開始位置も連動して下げる */
-    body {
-        padding-top: 90px !important;
+    /* 戻るボタンが押しにくい位置にならないよう調整 */
+    .back-btn {
+        font-weight: bold;
+        color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+}
+/* メニューの浮き上がり完全防止 */
+.fixed-menu {
+    position: fixed !important;
+    bottom: 0 !important;
+    transform: none !important;
 }
 /* お気に入りページを含め、全てのページでメニューの浮き上がりを許さない */
 body #favoritesPage, body #shufflePage, body #databasePage {
@@ -1994,8 +2000,8 @@ window.addEventListener('scroll', () => {
 function backToList() {
     document.getElementById('detailPage').classList.remove('active');
     // ★追加：下のメニューを再表示
-    const bottomNav = document.querySelector('.fixed-menu');
-    if (bottomNav) bottomNav.style.display = 'flex';
+    const fixedmenu = document.querySelector('.fixed-menu');
+    if (fixedmenu) fixedmenu.style.display = 'flex';
     switchPage(lastPage);
 }
         // 初期表示
