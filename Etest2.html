@@ -1215,45 +1215,50 @@ let policyData = null; // ★追加：規約データを保存する変数
 async function loadPeopleData() {
     try {
         const response = await fetch('people.json'); 
-        if (!response.ok) throw new Error('人物データの読み込みに失敗しました');
         people = await response.json(); 
-
-        const policyRes = await fetch('policy.json');
-        if (policyRes.ok) policyData = await policyRes.json();
 
         if (people.length > 0) {
             shuffledPeople = shuffleArray([...people]);
-            currentIndex = 0;
-            updateCounter();
             displayPerson(shuffledPeople[0]);
+            updateCounter();
 
-            // ★スマホ対策：画像が完全に読み込まれるのを待ってから位置を計算
-            const firstImg = document.querySelector('.profile-image');
-            if (firstImg) {
-                firstImg.onload = () => scrollToCard(); // 読み込み完了時に実行
-                // すでに読み込まれていた場合（キャッシュ）の保険
-                if (firstImg.complete) scrollToCard();
-            } else {
-                scrollToCard();
-            }
+            // ★最強の監視設定（Intersection Observer）
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        scrollToCard();
+                        observer.disconnect(); // 一度実行したら監視終了
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            const cardContainer = document.getElementById('personDisplay');
+            if (cardContainer) observer.observe(cardContainer);
         }
-    } catch (error) {
-        console.error('読み込みエラー:', error);
-    }
+    } catch (e) { console.error(e); }
 }
 
 // スクロール処理を共通関数化
 function scrollToCard() {
+    const card = document.querySelector('.person-card');
+    if (!card) return;
+
+    // スマホのブラウザに「今すぐ動け」と命令する
+    const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
+    
+    // behavior: 'smooth' が効かないスマホのために、二段構えで実行
+    window.scrollTo({
+        top: offset,
+        behavior: 'smooth'
+    });
+
+    // 保険：0.2秒後にもう一度だけ微調整（スマホのガタつき防止）
     setTimeout(() => {
-        const card = document.querySelector('.person-card');
-        if (card) {
-            const offset = card.getBoundingClientRect().top + window.pageYOffset - 80;
-            window.scrollTo({
-                top: offset,
-                behavior: 'smooth'
-            });
+        const reOffset = card.getBoundingClientRect().top + window.pageYOffset - 80;
+        if (Math.abs(window.scrollY - reOffset) > 10) {
+            window.scrollTo({ top: reOffset, behavior: 'smooth' });
         }
-    }, 300); // 描画の最終確定を待つ
+    }, 200);
 }
 
 
