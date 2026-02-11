@@ -473,6 +473,29 @@
 .person-card {
     animation: fadeInScale 1.0s ease-out; /* ★表示される時にアニメーション実行 */
 }
+/* 「詳細を見る」の矢印（カード右下） */
+.person-card::after {
+    content: '詳細を見る 〉'; /* ★テキストと矢印を追加 */
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    font-size: 0.75em;
+    color: #db007c; /* テーマカラーで目立たせる */
+    font-weight: bold;
+    opacity: 0.8;
+}
+/* スマホ版のさらなる微調整 */
+@media (max-width: 600px) {
+    .features-list li {
+        font-size: 1em; /* スマホでは適度な大きさに */
+        margin: 5px 0;
+    }
+    .person-card::after {
+        font-size: 0.7em;
+        bottom: 10px;
+        right: 15px;
+    }
+}
         .person-card {
             position: relative;
             background: linear-gradient(45deg, #ffffff, #ffffff);
@@ -525,7 +548,7 @@
             padding: 8px 20px;
             border-radius: 20px;
             font-size: 1em;
-            margin: 15px 0;
+            margin: 1px 0;
         }
         .features {
             margin-top: 25px;
@@ -533,17 +556,21 @@
         .features ul {
             list-style: none;
             padding: 0;
-            margin: 15px 0;
+            margin: 1px 0;
         }
         .features li {
-            background: #f9f9f9;
-            margin: 10px 0;
-            padding: 12px;
-            border-left: 4px solid #7c009e;
-            border-radius: 3px;
-            font-size: 1em;
-            text-align: left;
-        }
+           background: none; /* 背景を消してスッキリさせる */
+    padding: 10px 0;
+    font-size: 1.1em; /* ★サイズを少し大きく */
+    font-weight: bold; /* ★太字にして強調 */
+    color: #333; /* ★色を濃くして視認性を上げる */
+    text-align: center;
+    border-bottom: 2px solid #f0f0f0; /* 下線を入れて区切りを明確に */
+    margin: 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
         .next-btn {
             display: block;
@@ -733,11 +760,18 @@
             margin: 20px 0;
         }
         .info-item {
-            background: #f9f9f9;
-            padding: 11px;
-            border-radius: 8px;
-            border-left: 3px solid #7c009e;
-        }
+           background: none; /* 背景を消してスッキリさせる */
+    padding: 10px 0;
+    font-size: 1.1em; /* ★サイズを少し大きく */
+    font-weight: bold; /* ★太字にして強調 */
+    color: #333; /* ★色を濃くして視認性を上げる */
+    text-align: center;
+    border-bottom: 2px solid #f0f0f0; /* 下線を入れて区切りを明確に */
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
         .info-item label {
             display: block;
             color: #666;
@@ -1046,8 +1080,8 @@
         </div>
 
         <div class="counter" id="counter">1人目 / 21人</div>
-        <p class="click-hint">💡 カードをクリックで詳細を表示</p>
         <div id="personDisplay"></div>
+         <p class="click-hint">💡 カードをクリックで詳細を表示</p>
         <button class="next-btn" onclick="showNextPerson()">次の人を表示 →</button>
     </div>
 
@@ -1418,8 +1452,8 @@ function displayPerson(person) {
     // スマホかどうか判定（画面幅600px以下）
     const isMobile = window.innerWidth <= 600;
     
-    // スマホなら最初の1つだけ、PCなら全部出す
-    const displayFeatures = isMobile ? [person.features[0]] : person.features;
+// PC・スマホ関係なく、最初の1つだけを表示する
+const displayFeatures = [person.features[0]];
     const featuresHTML = displayFeatures.map(f => `<li>${f}</li>`).join('');
 
     const isFavorited = favorites.includes(person.id);
