@@ -1575,6 +1575,9 @@ window.addEventListener('scroll', () => {
     const header = document.querySelector('.site-header');
     const currentScrollY = window.scrollY;
 
+    // ★現在のページが「shufflePage」かつ「active」クラスを持っているか判定
+    const isShufflePage = document.getElementById('shufflePage').classList.contains('active');
+    
     if (currentScrollY > lastScrollY && currentScrollY > 1) {
         // 下にスクロール ＆ 1px以上進んだら隠す
         header.classList.add('header-hidden');
