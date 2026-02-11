@@ -28,6 +28,9 @@
         display: flex;
         align-items: center;
     }
+    .side-menu {
+        padding-top: 80px !important; /* ヘッダーの高さに合わせて調整 */
+    }
 
     /* メインコンテンツがヘッダーに隠れないよう調整 */
     body {
@@ -1220,6 +1223,17 @@
         padding-top: 90px !important;
     }
 }
+/* お気に入りページを含め、全てのページでメニューの浮き上がりを許さない */
+body #favoritesPage, body #shufflePage, body #databasePage {
+    padding-bottom: 100px !important; /* コンテンツがメニューに被らないよう余白を確保 */
+}
+
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    transform: none !important; /* 他のスタイルからの干渉（浮き上がり）をリセット */
+    z-index: 10000 !important;
+}
     </style>
 </head>
 <!--CSS終わり-->
@@ -1869,6 +1883,9 @@ function showDetail(personId) {
     `;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('detailPage').classList.add('active');
+    // ★追加：下のメニューを隠す
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
     window.scrollTo(0, 0);
 }
 let lastScrollY = window.scrollY; // 直前のスクロール位置を保存
@@ -1893,6 +1910,9 @@ window.addEventListener('scroll', () => {
 
 function backToList() {
     document.getElementById('detailPage').classList.remove('active');
+    // ★追加：下のメニューを再表示
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'flex';
     switchPage(lastPage);
 }
         // 初期表示
@@ -1906,6 +1926,29 @@ document.addEventListener('touchend', function (event) {
     lastTouchEnd = now;
 }, false);
 var lastTouchEnd = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+
+const sideMenu = document.getElementById('sideMenu');
+
+sideMenu.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+sideMenu.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, {passive: true});
+
+function handleSwipe() {
+    // 右方向に50px以上スワイプしたら閉じる
+    if (touchEndX - touchStartX > 50) {
+        if (sideMenu.classList.contains('open')) {
+            toggleSideMenu();
+        }
+    }
+}
     </script>
+    <!--Javascript終わり-->
 </body>
 </html>
