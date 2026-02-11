@@ -929,20 +929,15 @@
             margin-bottom: 20px;
         }
         .back-btn {
-            display: block;
-            width: 100%;
-            background: #666;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 30px;
-            margin-bottom: 80px;
-            transition: all 0.3s;
-        }
+       position: static !important; /* 絶対配置を解除 */
+        display: inline-block !important;
+        margin-right: 15px; /* カテゴリとの間隔 */
+        padding: 5px 15px;
+        background: #eee;
+        border-radius: 20px;
+        vertical-align: middle;
+        font-size: 14px;
+    }
         .back-btn:hover {
             background: #555;
         }
@@ -1943,18 +1938,40 @@ let lastScrollY = window.scrollY; // 直前のスクロール位置を保存
 
 // 戻るボタンの処理も修正
 function backToList() {
+    // 1. 詳細ページを閉じ、bodyの合図を消す
     document.getElementById('detailPage').classList.remove('active');
-     document.querySelector('.fixed-menu').classList.remove('hidden-menu');
-    
-    window.scrollTo(0, 0);
-    // ★重要：合図を消す（これでメニューが復活します）
     document.body.classList.remove('detail-open');
-    // ★メニューを復活させる
-    const bNav = document.querySelector('.fixed-menu');
-    if (bNav) bNav.style.setProperty('display', 'flex', 'important');
-    
+
+    // 2. メニューを確実に「flex」で復活させる
+    const fMenu = document.querySelector('.fixed-menu');
+    if (fMenu) {
+        fMenu.style.setProperty('display', 'flex', 'important');
+    }
+
+    // 3. 元のページへ戻る
     switchPage(lastPage);
 }
+
+// --- サイドメニュー・スワイプ閉鎖（完全版） ---
+(function() {
+    let startX = 0;
+    const sMenu = document.getElementById('sideMenu');
+    if (!sMenu) return;
+
+    sMenu.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].pageX; // pageXを使用
+    }, {passive: true});
+
+    sMenu.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].pageX;
+        // 右方向へ60px以上スワイプされたか判定
+        if (endX - startX > 60) {
+            if (sMenu.classList.contains('open')) {
+                toggleSideMenu();
+            }
+        }
+    }, {passive: true});
+})();
 
 window.addEventListener('scroll', () => {
     const header = document.querySelector('.site-header');
