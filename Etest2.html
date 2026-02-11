@@ -32,6 +32,30 @@
         padding: 5px 0; /* 下部メニューをスマホで押しやすく */
     }
 }
+/* 検索・フィルタリングのスタイル */
+.filter-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+#searchInput {
+    flex: 2;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px; /* スマホでズームされないサイズ */
+}
+
+#categorySelect {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 14px;
+}
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             max-width: 800px;
@@ -918,8 +942,22 @@
     </div>
 
     <!-- データベースページ -->
-    <div class="page" id="databasePage">
+<div class="page" id="databasePage">
         <h2 style="text-align: center; color: #db007c; margin-top: 20px;">全女優データベース</h2>
+        
+        <!--データベースカテゴリフィルター-->
+        <div class="filter-container">
+            <input type="text" id="searchInput" placeholder="名前やキーワードで検索..." oninput="filterDatabase()">
+            <select id="categorySelect" onchange="filterDatabase()">
+                <option value="all">すべてのカテゴリー</option>
+                <option value="営業">営業</option>
+                <option value="経営者">経営者</option>
+                <option value="デザイナー">デザイナー</option>
+                <option value="エンジニア">エンジニア</option>
+                <option value="マーケター">マーケター</option>
+            </select>
+        </div>
+        
         <div class="database-grid" id="databaseGrid"></div>
     </div>
 
@@ -1067,39 +1105,32 @@ loadPeopleData();
         }
 
         // ページ切り替え
-// 1083行目付近
 function switchPage(pageName) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.fixed-menu-item').forEach(item => item.classList.remove('active'));
 
-    // 1. まずページを表示する
     const targetPage = document.getElementById(pageName + 'Page');
     if (targetPage) {
         targetPage.classList.add('active');
     }
 
-    // 2. ★追加：規約ページの場合、その場でJSONから中身を流し込む
     if (pageName === 'privacy') displayPolicy('privacy');
     if (pageName === 'terms') displayPolicy('terms');
     if (pageName === 'disclaimer') displayPolicy('disclaimer');
 
-    // 3. メニューの見た目を更新
     if (pageName === 'shuffle') {
         document.querySelectorAll('.fixed-menu-item')[1].classList.add('active');
     } else if (pageName === 'database') {
         document.querySelectorAll('.fixed-menu-item')[0].classList.add('active');
-        renderDatabase();
+        renderDatabase(); // ここで正しく描画されます
     } else if (pageName === 'favorites') {
         document.querySelectorAll('.fixed-menu-item')[2].classList.add('active');
         renderFavorites();
-    } else if (pageName === 'contact') {
-        // お問い合わせページ
     }
 
     if (['shuffle', 'database', 'favorites'].includes(pageName)) {
         lastPage = pageName;
     }
-
     window.scrollTo(0, 0);
 }
 
@@ -1124,141 +1155,151 @@ function switchPage(pageName) {
         }
 
         // データベース表示
-        function renderDatabase() {
-            const grid = document.getElementById('databaseGrid');
-            grid.innerHTML = people.map(person => `
-                <div class="database-card" onclick="showDetail('${person.id}')">
-                    <img src="${person.imageUrl}" alt="${person.name}" class="database-image">
-                    <div class="database-name">${person.name}</div>
-                    <div class="database-category">${person.category}</div>
-                </div>
-            `).join('');
-        }
+        // --- データベース描画・検索ロジック (ルートA完成版) ---
 
-        // お気に入り表示
-        function renderFavorites() {
-            const grid = document.getElementById('favoritesGrid');
-            const noMsg = document.getElementById('noFavoritesMsg');
-            const favPeople = people.filter(p => favorites.includes(p.id));
+// 1. データベースの描画関数
+function renderDatabase(dataToRender = people) {
+    // HTML上の databaseGrid という箱を探す
+    const grid = document.getElementById('databaseGrid');
+    if (!grid) return;
 
-            if (favPeople.length === 0) {
-                grid.innerHTML = '';
-                noMsg.style.display = 'block';
-            } else {
-                noMsg.style.display = 'none';
-                grid.innerHTML = favPeople.map(person => `
-                    <div class="database-card" onclick="showDetail('${person.id}')">
-                        <img src="${person.imageUrl}" alt="${person.name}" class="database-image">
-                        <div class="database-name">${person.name}</div>
-                        <div class="database-category">${person.category}</div>
-                    </div>
-                `).join('');
-            }
-        }
+    grid.innerHTML = ''; // 一旦中身を空にする
 
-        // お気に入り切り替え（カード用）
-        function toggleFavorite(personId, event) {
-            event.stopPropagation();
-            const index = favorites.indexOf(personId);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(personId);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-
-            const btn = event.target;
-            btn.classList.toggle('favorited');
-            btn.textContent = favorites.includes(personId) ? '❤️' : '🤍';
-        }
-
-        // お気に入り切り替え（詳細ページ用）
-        function toggleFavoriteDetail(personId) {
-            const index = favorites.indexOf(personId);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(personId);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-
-            // ボタン更新
-            const btn = document.getElementById('favBtnDetail');
-            btn.classList.toggle('favorited');
-            btn.textContent = favorites.includes(personId) ? '❤️' : '🤍';
-        }
-
-        // フィルターの表示/非表示を切り替え
-        function toggleFilter() {
-            const filterButtons = document.getElementById('filterButtons');
-            const toggleIcon = document.getElementById('toggleIcon');
-            filterButtons.classList.toggle('collapsed');
-            toggleIcon.classList.toggle('collapsed');
-        }
-
-        // 配列をシャッフルする関数
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        // フィルター処理
-        function filterCategory(category) {
-            currentFilter = category;
-            currentIndex = 0;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            if (category === 'all') {
-                shuffledPeople = shuffleArray([...people]);
-            } else {
-                const filtered = people.filter(p => p.category === category);
-                shuffledPeople = shuffleArray(filtered);
-            }
-
-            displayPerson(shuffledPeople[0]);
-            updateCounter();
-        }
-
-// ★追加：規約をHTMLに書き出す関数
-function displayPolicy(type) {
-    if (!policyData || !policyData[type]) return;
-
-    const data = policyData[type];
-    const containerId = `${type}Page`; // privacyPage, termsPage, disclaimerPage
-    
-    let html = `<h2>${data.title}</h2>`;
-    
-    data.sections.forEach(section => {
-        html += `<h3>${section.heading}</h3>`;
-        html += `<p>${section.content}</p>`;
-        // リスト項目がある場合（禁止事項など）
-        if (section.list) {
-            html += `<ul>${section.list.map(item => `<li>${item}</li>`).join('')}</ul>`;
-        }
-    });
-
-    const container = document.getElementById(containerId);
-    if (container) {
-        container.innerHTML = html;
-    }
-}
-
-       // 人物を表示する関数
-function displayPerson(person) {
-    // 【プロの安全策】データが正しく渡されていない場合は処理を中断する
-    if (!person || !person.features) {
-        console.warn("表示する人物データ、またはfeaturesが見つかりません:", person);
+    if (dataToRender.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; color:#999; grid-column:1/-1;">該当する人物が見つかりません</p>';
         return;
     }
 
-    // ここからは既存の処理（personが確実に存在する場合のみ動く）
-    const featuresHTML = person.features.map(f => `<li>${f}</li>`).join('');
+    dataToRender.forEach(person => {
+        const card = document.createElement('div');
+        card.className = 'database-card';
+        // id を showDetail に渡す
+        card.onclick = () => showDetail(person.id);
+        
+        // JSONの項目名に合わせて imageUrl を使用
+        card.innerHTML = `
+            <img src="${person.imageUrl}" alt="${person.name}" class="database-image" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+            <div class="database-name">${person.name}</div>
+            <div class="database-category">${person.category || '未分類'}</div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// 2. 検索・フィルタリングの実行関数
+function filterDatabase() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const selectedCategory = document.getElementById('categorySelect').value;
+
+    const filteredPeople = people.filter(person => {
+        // 名前、カテゴリー、趣味を検索対象にする
+        const nameMatch = person.name.toLowerCase().includes(searchTerm);
+        const categoryMatchInText = (person.category || "").toLowerCase().includes(searchTerm);
+        const hobbyMatch = person.hobbies && person.hobbies.some(h => h.toLowerCase().includes(searchTerm));
+        
+        const matchesSearch = nameMatch || categoryMatchInText || hobbyMatch;
+        
+        // セレクトボックスのカテゴリー一致チェック
+        const matchesCategory = (selectedCategory === 'all' || person.category === selectedCategory);
+        
+        return matchesSearch && matchesCategory;
+    });
+
+    renderDatabase(filteredPeople);
+}
+
+// 3. お気に入り一覧の描画
+function renderFavorites() {
+    const grid = document.getElementById('favoritesGrid');
+    const noMsg = document.getElementById('noFavoritesMsg');
+    if (!grid) return;
+
+    const favPeople = people.filter(p => favorites.includes(p.id));
+
+    if (favPeople.length === 0) {
+        grid.innerHTML = '';
+        noMsg.style.display = 'block';
+    } else {
+        noMsg.style.display = 'none';
+        grid.innerHTML = favPeople.map(person => `
+            <div class="database-card" onclick="showDetail('${person.id}')">
+                <img src="${person.imageUrl}" alt="${person.name}" class="database-image">
+                <div class="database-name">${person.name}</div>
+                <div class="database-category">${person.category || '未分類'}</div>
+            </div>
+        `).join('');
+    }
+}
+
+// --- 以下、既存の便利機能の維持 ---
+
+function toggleFavorite(personId, event) {
+    event.stopPropagation();
+    const index = favorites.indexOf(personId);
+    if (index > -1) { favorites.splice(index, 1); } else { favorites.push(personId); }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    const btn = event.target;
+    btn.classList.toggle('favorited');
+    btn.textContent = favorites.includes(personId) ? '❤️' : '🤍';
+}
+
+function toggleFavoriteDetail(personId) {
+    const index = favorites.indexOf(personId);
+    if (index > -1) { favorites.splice(index, 1); } else { favorites.push(personId); }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    const btn = document.getElementById('favBtnDetail');
+    if (btn) {
+        btn.classList.toggle('favorited');
+        btn.textContent = favorites.includes(personId) ? '❤️' : '🤍';
+    }
+}
+
+function toggleFilter() {
+    const filterButtons = document.getElementById('filterButtons');
+    const toggleIcon = document.getElementById('toggleIcon');
+    filterButtons.classList.toggle('collapsed');
+    toggleIcon.classList.toggle('collapsed');
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function filterCategory(category) {
+    currentFilter = category;
+    currentIndex = 0;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if(event) event.target.classList.add('active');
+
+    if (category === 'all') {
+        shuffledPeople = shuffleArray([...people]);
+    } else {
+        shuffledPeople = shuffleArray(people.filter(p => p.category === category));
+    }
+    if (shuffledPeople.length > 0) displayPerson(shuffledPeople[0]);
+    updateCounter();
+}
+
+function displayPolicy(type) {
+    if (!policyData || !policyData[type]) return;
+    const data = policyData[type];
+    const containerId = `${type}Page`;
+    let html = `<h2>${data.title}</h2>`;
+    data.sections.forEach(section => {
+        html += `<h3>${section.heading}</h3><p>${section.content}</p>`;
+        if (section.list) { html += `<ul>${section.list.map(item => `<li>${item}</li>`).join('')}</ul>`; }
+    });
+    const container = document.getElementById(containerId);
+    if (container) container.innerHTML = html;
+}
+
+function displayPerson(person) {
+    if (!person) return;
+    const featuresHTML = (person.features || []).map(f => `<li>${f}</li>`).join('');
     const isFavorited = favorites.includes(person.id);
     const imageHTML = person.imageUrl
         ? `<img src="${person.imageUrl}" alt="${person.name}" class="profile-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -1274,168 +1315,99 @@ function displayPerson(person) {
                 </div>
                 <h3>${person.name}</h3>
                 ${imageHTML}
-                <span class="category">${person.category}</span>
-                <div class="features">
-                    <ul>
-                        ${featuresHTML}
-                    </ul>
-                </div>
+                <span class="category">${person.category || '未分類'}</span>
+                <div class="features"><ul>${featuresHTML}</ul></div>
             </div>
         `;
     }
 }
 
-        // カウンター更新
-        function updateCounter() {
-            const total = shuffledPeople.length;
-            document.getElementById('counter').textContent = `${currentIndex + 1}人目 / ${total}人`;
-        }
+function updateCounter() {
+    const total = shuffledPeople.length;
+    const counterEl = document.getElementById('counter');
+    if (counterEl) counterEl.textContent = `${currentIndex + 1}人目 / ${total}人`;
+}
 
-        // 次の人を表示する関数
-        function showNextPerson() {
-            currentIndex++;
-            if (currentIndex >= shuffledPeople.length) {
-                if (currentFilter === 'all') {
-                    shuffledPeople = shuffleArray([...people]);
-                } else {
-                    const filtered = people.filter(p => p.category === currentFilter);
-                    shuffledPeople = shuffleArray(filtered);
-                }
-                currentIndex = 0;
-            }
-            displayPerson(shuffledPeople[currentIndex]);
-            updateCounter();
-        }
+function showNextPerson() {
+    currentIndex++;
+    if (currentIndex >= shuffledPeople.length) {
+        filterCategory(currentFilter);
+        currentIndex = 0;
+    }
+    displayPerson(shuffledPeople[currentIndex]);
+    updateCounter();
+}
 
-        // ビデオを読み込む関数（遅延読み込み）
-        function loadVideo(containerId, videoUrl) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<iframe class="video-iframe" src="${videoUrl}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-        }
+function loadVideo(containerId, videoUrl) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = `<iframe class="video-iframe" src="${videoUrl}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+}
 
-        // ポートフォリオ画像クリック
-        function openPortfolioLink(url) {
-            window.open(url, '_blank');
-        }
+function openPortfolioLink(url) { window.open(url, '_blank'); }
 
-        // 詳細ページを表示
-        function showDetail(personId) {
-            const person = people.find(p => p.id === personId);
-            if (!person) return;
+function showDetail(personId) {
+    const person = people.find(p => p.id === personId);
+    if (!person) return;
+    currentDetailPersonId = personId;
+    const videoContainerId = `video-container-${person.id}`;
+    const isFavorited = favorites.includes(person.id);
+    const portfolioHTML = (person.portfolioImages || []).map(img => `
+        <div class="portfolio-item" onclick="openPortfolioLink('${img.link}')">
+            <img src="${img.url}" alt="作品" class="portfolio-image">
+            <div class="portfolio-project-name">${img.projectName}</div>
+            <div class="portfolio-id">${img.id}</div>
+        </div>
+    `).join('');
 
-            currentDetailPersonId = personId;
-            const videoContainerId = `video-container-${person.id}`;
-            const isFavorited = favorites.includes(person.id);
+    document.getElementById('detailContent').innerHTML = `
+        <div class="detail-header">
+            <div class="furigana">${person.furigana}</div>
+            <h2>${person.name}</h2>
+            <span class="category">${person.category}</span>
+        </div>
+        <img src="${person.imageUrlLarge || person.imageUrl}" alt="${person.name}" class="detail-profile-image">
+        <div class="favorite-btn-detail ${isFavorited ? 'favorited' : ''}" id="favBtnDetail" onclick="toggleFavoriteDetail('${person.id}')">
+            ${isFavorited ? '❤️' : '🤍'}
+        </div>
+        <div class="video-section">
+            <h3>紹介ビデオ</h3>
+            <div class="video-container" id="${videoContainerId}" onclick="loadVideo('${videoContainerId}', '${person.videoUrl}')">
+                <img src="${person.videoThumbnail}" alt="ビデオサムネイル" class="video-thumbnail">
+                <div class="video-play-button"></div>
+            </div>
+            <a href="${person.affiliateLink}" target="_blank" class="cta-button">詳細はこちら</a>
+        </div>
+        <div class="detail-section"><h3>ポートフォリオ</h3><div class="portfolio-gallery">${portfolioHTML}</div></div>
+        <div class="detail-section">
+            <h3>基本情報</h3>
+            <div class="info-grid">
+                <div class="info-item"><label>固有ID</label><div class="value">${person.id}</div></div>
+                <div class="info-item"><label>身長</label><div class="value">${person.height} cm</div></div>
+                <div class="info-item"><label>血液型</label><div class="value">${person.bloodType}</div></div>
+                <div class="info-item"><label>出身地</label><div class="value">${person.birthplace}</div></div>
+                <div class="info-item"><label>生年月日</label><div class="value">${person.birthday}</div></div>
+                <div class="info-item"><label>デビュー日</label><div class="value">${person.debutDate}</div></div>
+            </div>
+        </div>
+        <div class="detail-section">
+            <h3>身体計測データ</h3>
+            <div class="info-grid">
+                <div class="info-item"><label>バスト</label><div class="value">${person.measurements.b} cm</div></div>
+                <div class="info-item"><label>ウエスト</label><div class="value">${person.measurements.w} cm</div></div>
+                <div class="info-item"><label>ヒップ</label><div class="value">${person.measurements.h} cm</div></div>
+            </div>
+        </div>
+        <div class="detail-section"><h3>趣味・特技</h3><div class="info-item"><div class="value">${(person.hobbies || []).join('、')}</div></div></div>
+    `;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('detailPage').classList.add('active');
+    window.scrollTo(0, 0);
+}
 
-            const portfolioHTML = person.portfolioImages
-                .map(img => `
-                    <div class="portfolio-item" onclick="openPortfolioLink('${img.link}')">
-                        <img src="${img.url}" alt="ポートフォリオ" class="portfolio-image">
-                        <div class="portfolio-project-name">${img.projectName}</div>
-                        <div class="portfolio-id">${img.id}</div>
-                    </div>
-                `).join('');
-
-            const detailHTML = `
-                <div class="detail-header">
-                    <div class="furigana">${person.furigana}</div>
-                    <h2>${person.name}</h2>
-                    <span class="category">${person.category}</span>
-                </div>
-
-                <img src="${person.imageUrlLarge || person.imageUrl}" alt="${person.name}" class="detail-profile-image">
-
-                <div class="favorite-btn-detail ${isFavorited ? 'favorited' : ''}" id="favBtnDetail" onclick="toggleFavoriteDetail('${person.id}')">
-                    ${isFavorited ? '❤️' : '🤍'}
-                </div>
-
-                <div class="video-section">
-                    <h3 style="color: #db007c; border-left: 5px solid #7c009e; padding-left: 15px; margin-bottom: 15px;">紹介ビデオ</h3>
-                    <div class="video-container" id="${videoContainerId}" onclick="loadVideo('${videoContainerId}', '${person.videoUrl}')">
-                        <img src="${person.videoThumbnail}" alt="ビデオサムネイル" class="video-thumbnail">
-                        <div class="video-play-button"></div>
-                    </div>
-                    <a href="${person.affiliateLink}" target="_blank" class="cta-button">
-                        詳細はこちら
-                    </a>
-                </div>
-
-                <div class="detail-section">
-                    <h3>ポートフォリオ</h3>
-                    <div class="portfolio-gallery">
-                        ${portfolioHTML}
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>基本情報</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>固有ID</label>
-                            <div class="value">${person.id}</div>
-                        </div>
-                        <div class="info-item">
-                            <label>身長</label>
-                            <div class="value">${person.height} cm</div>
-                        </div>
-                        <div class="info-item">
-                            <label>血液型</label>
-                            <div class="value">${person.bloodType}</div>
-                        </div>
-                        <div class="info-item">
-                            <label>出身地</label>
-                            <div class="value">${person.birthplace}</div>
-                        </div>
-                        <div class="info-item">
-                            <label>生年月日</label>
-                            <div class="value">${person.birthday}</div>
-                        </div>
-                        <div class="info-item">
-                            <label>デビュー日</label>
-                            <div class="value">${person.debutDate}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>身体計測データ</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>バスト (B)</label>
-                            <div class="value">${person.measurements.b} cm</div>
-                        </div>
-                        <div class="info-item">
-                            <label>ウエスト (W)</label>
-                            <div class="value">${person.measurements.w} cm</div>
-                        </div>
-                        <div class="info-item">
-                            <label>ヒップ (H)</label>
-                            <div class="value">${person.measurements.h} cm</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>趣味・特技</h3>
-                    <div class="info-item">
-                        <div class="value">${person.hobbies.join('、')}</div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('detailContent').innerHTML = detailHTML;
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('detailPage').classList.add('active');
-            window.scrollTo(0, 0);
-        }
-
-        // 一覧に戻る
-        function backToList() {
-            document.getElementById('detailPage').classList.remove('active');
-            switchPage(lastPage);
-            window.scrollTo(0, 0);
-        }
-
+function backToList() {
+    document.getElementById('detailPage').classList.remove('active');
+    switchPage(lastPage);
+}
         // 初期表示
   
     </script>
