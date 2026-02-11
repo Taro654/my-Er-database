@@ -544,6 +544,8 @@
         /* 少し浮かせて、背景の透明感と合わせる */
         background: linear-gradient(45deg, rgba(124, 0, 158, 0.8), rgba(219, 0, 124, 0.8));
         backdrop-filter: blur(5px);
+        user-select: none;
+    -webkit-user-select: none;
     }
 }
 }
@@ -1219,6 +1221,7 @@
         <div id="personDisplay"></div>
          <p class="click-hint">💡 カードをクリックで詳細を表示</p>
         <button class="next-btn" onclick="showNextPerson()">次の人を表示 →</button>
+        
     </div>
 
     <!-- データベースページ -->
@@ -1783,6 +1786,7 @@ window.addEventListener('scroll', () => {
 
     lastScrollY = currentScrollY; // 現在の位置を保存
 }, { passive: true });
+
 
 function backToList() {
     document.getElementById('detailPage').classList.remove('active');
