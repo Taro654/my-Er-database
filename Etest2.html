@@ -56,7 +56,7 @@ height: 60px; /* 70pxから60pxに縮小 */
         height: 150px;
         margin: 5px auto;
     }
-
+.category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
     .category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
 
     .features li {
@@ -67,7 +67,7 @@ height: 60px; /* 70pxから60pxに縮小 */
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
+.category { padding: 4px 12px; font-size: 0.8em; margin: 5px 0; }
     .next-btn {
         margin-top: 5px;
         padding: 10px;
@@ -532,26 +532,6 @@ body.detail-open .fixed-menu {
     white-space: nowrap;
     transition: all 0.2s;
 }
-/* カテゴリーヘッダーの文字化け・改行防止 */
-.filter-header h3 {
-    white-space: nowrap; /* ★1行に収める */
-}
-        .filter-btn:hover {
-            border-color: #7c009e;
-            color: #7c009e;
-        }
-       .filter-btn.active {
-    background: linear-gradient(45deg, #7c009e, #db007c);
-    color: white;
-    border: none;
-    box-shadow: 0 2px 8px rgba(219, 0, 124, 0.3);
-}
-        /* 人物カード */
-        /* カードにふわっと出るアニメーションを追加 */
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
 
 .person-card {
     animation: fadeInScale 1.0s ease-out; /* ★表示される時にアニメーション実行 */
@@ -715,6 +695,27 @@ body.detail-open .fixed-menu {
             margin-top: 0;
             margin-bottom: 20px;
         }
+
+        /* カテゴリーヘッダーの文字化け・改行防止 */
+.filter-header h3 {
+    white-space: nowrap; /* ★1行に収める */
+}
+        .filter-btn:hover {
+            border-color: #7c009e;
+            color: #7c009e;
+        }
+       .filter-btn.active {
+    background: linear-gradient(45deg, #7c009e, #db007c);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 8px rgba(219, 0, 124, 0.3);
+}
+        /* 人物カード */
+        /* カードにふわっと出るアニメーションを追加 */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
         /* 詳細ページ */
         .detail-page {
@@ -1249,6 +1250,26 @@ body #favoritesPage, body #shufflePage, body #databasePage {
     padding-bottom: 120px !important;
 }
 
+/* シャッフルページ全体の高さを画面いっぱいに設定 */
+#shufflePage.page {
+    display: flex !important;
+    flex-direction: column !important;
+    /* 画面全高からヘッダー(60px)とメニュー(70px)程度を引いた高さを確保 */
+    min-height: calc(100vh - 130px) !important;
+    padding-bottom: 20px !important;
+    box-sizing: border-box !important;
+}
+
+/* 隙間を埋めて押し下げるパーツ */
+.flex-spacer {
+    flex-grow: 1 !important; /* これが余白をすべて吸収します */
+}
+
+/* カテゴリー部分を一番下に固定 */
+.filter-container {
+    margin-top: auto !important;
+    width: 100%;
+}
 
 /* 1. ヘッダーを正しい位置に戻し、サイドメニューの重なりを解消 */
 .site-header {
@@ -1368,14 +1389,20 @@ body #favoritesPage, body #shufflePage, body #databasePage {
     <!-- メニューオーバーレイ -->
     <div class="menu-overlay" id="menuOverlay" onclick="toggleSideMenu()"></div>
 
-    <!-- シャッフルページ（メイン） -->
+    <!-- シャッフルページ（メイン）入れ替え -->
     <div class="page active" id="shufflePage">
-        
-        <!-- フィルター -->
+        <ur></ur>
+        <div class="counter" id="counter">1人目 / 21人</div>
+        <div id="personDisplay"></div>
+         <p class="click-hint">💡カードをクリックで詳細を表示</p>
+        <button class="next-btn" onclick="showNextPerson()">次の人を表示 →</button>
+
+      <div class="flex-spacer"></div>
+
+         <!-- フィルター -->
         <div class="filter-container">
-            <div class="filter-header" onclick="toggleFilter()" style="display: flex; align-items: center; gap: 10px;">
+            <div class="filter-header" onclick="toggleFilter()" style="display: flex; align-items: center; gap: 1px;">
     <h3 style="white-space: nowrap;">カテゴリー</h3> <span class="toggle-icon" id="toggleIcon">▶</span>
-</div>
             <div class="filter-buttons" id="filterButtons">
                 <button class="filter-btn active" onclick="filterCategory('all')">すべて</button>
                 <button class="filter-btn" onclick="filterCategory('経営者')">経営者</button>
@@ -1385,12 +1412,7 @@ body #favoritesPage, body #shufflePage, body #databasePage {
                 <button class="filter-btn" onclick="filterCategory('営業')">営業</button>
             </div>
         </div>
-
-        <div class="counter" id="counter">1人目 / 21人</div>
-        <div id="personDisplay"></div>
-         <p class="click-hint">💡カードをクリックで詳細を表示</p>
-        <button class="next-btn" onclick="showNextPerson()">次の人を表示 →</button>
-        
+        </div>
     </div>
 
     <!-- データベースページ -->
