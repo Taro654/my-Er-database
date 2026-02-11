@@ -1228,11 +1228,26 @@ body #favoritesPage, body #shufflePage, body #databasePage {
     padding-bottom: 100px !important; /* コンテンツがメニューに被らないよう余白を確保 */
 }
 
+/* お気に入りページ等のメニュー浮き上がりを物理的に阻止 */
 .bottom-nav {
     position: fixed !important;
     bottom: 0 !important;
-    transform: none !important; /* 他のスタイルからの干渉（浮き上がり）をリセット */
-    z-index: 10000 !important;
+    left: 0 !important;
+    transform: none !important; /* 浮き上がりアニメーションをリセット */
+    z-index: 99999 !important; /* 最前面 */
+}
+
+/* お気に入りページ自体の余白を確保してメニューとの被りを防ぐ */
+#favoritesPage {
+    padding-bottom: 120px !important;
+}
+
+/* サイドメニューの上部位置調整 */
+@media (max-width: 600px) {
+    .side-menu {
+        top: 0 !important;
+        padding-top: 80px !important; /* ヘッダーの高さ分下げる */
+    }
 }
     </style>
 </head>
@@ -1884,11 +1899,21 @@ function showDetail(personId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('detailPage').classList.add('active');
     // ★追加：下のメニューを隠す
-    const bottomNav = document.querySelector('.bottom-nav');
-    if (bottomNav) bottomNav.style.display = 'none';
+    const bNav = document.querySelector('.bottom-nav');
+    if (bNav) bNav.style.setProperty('display', 'none', 'important');
     window.scrollTo(0, 0);
 }
 let lastScrollY = window.scrollY; // 直前のスクロール位置を保存
+// 戻るボタンの処理も修正
+function backToList() {
+    document.getElementById('detailPage').classList.remove('active');
+    
+    // ★メニューを復活させる
+    const bNav = document.querySelector('.bottom-nav');
+    if (bNav) bNav.style.setProperty('display', 'flex', 'important');
+    
+    switchPage(lastPage);
+}
 
 window.addEventListener('scroll', () => {
     const header = document.querySelector('.site-header');
@@ -1947,7 +1972,26 @@ function handleSwipe() {
             toggleSideMenu();
         }
     }
+    let touchStartX = 0;
+
+// サイドメニュー本体へのタッチを監視
+const menuEl = document.getElementById('sideMenu');
+
+menuEl.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+menuEl.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    // 右へ50px以上スワイプしたら閉じる
+    if (touchEndX - touchStartX > 50) {
+        if (menuEl.classList.contains('open')) {
+            toggleSideMenu();
+        }
+    }
+}, {passive: true});
 }
+
     </script>
     <!--Javascript終わり-->
 </body>
