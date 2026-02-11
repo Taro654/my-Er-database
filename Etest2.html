@@ -1575,8 +1575,8 @@ window.addEventListener('scroll', () => {
     const header = document.querySelector('.site-header');
     const currentScrollY = window.scrollY;
 
-    if (currentScrollY > lastScrollY && currentScrollY > 30) {
-        // 下にスクロール ＆ 30px以上進んだら隠す
+    if (currentScrollY > lastScrollY && currentScrollY > 10) {
+        // 下にスクロール ＆ 10px以上進んだら隠す
         header.classList.add('header-hidden');
     } else {
         // 上にスクロールしたら表示する
