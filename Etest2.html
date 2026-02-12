@@ -23,7 +23,7 @@
         /* スマホ向けの調整 */
 @media (max-width: 600px) {
     .site-header {
-height: 50px; /* 70pxから60pxに縮小 */
+height: 65px; /* 70pxから60pxに縮小 */
     padding-top: 10px; /* 余白を詰める */
         display: flex;
         align-items: center;
@@ -466,16 +466,34 @@ body.detail-open .fixed-menu {
         }
 
         /* フィルターボタン */
-        .filter-container {
-    text-align: left; /* 左寄せに変更 */
-    margin-bottom: 20px;
+       /* --- ここから差し替え --- */
+
+/* 1. シャッフルページ専用：一番下に固定する設定 */
+#shufflePage .filter-container {
+    margin-top: auto !important; /* これが一番下に押し下げる魔法 */
+    width: 100%;
+    text-align: left;
     padding: 15px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden; /* ★はみ出しを完全にカット */
-    
+    box-sizing: border-box; /* はみ出し防止 */
 }
+
+/* 2. データベースと保存用：上の方に普通に表示する設定 */
+#databasePage .filter-container,
+#favoritesPage .filter-container {
+    margin-top: 0 !important; /* 上に詰める */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* --- ここまで差し替え --- */
 /*カテゴリーの見た目*/
        .filter-header {
     display: flex;
@@ -507,15 +525,14 @@ body.detail-open .fixed-menu {
 /* 横スクロールするボタンエリア */
 .filter-buttons {
     display: flex;
-    flex-wrap: nowrap; /* 横一列に並べる */
+    flex-wrap: nowrap !important; /* 横一列に並べる */
     overflow-x: auto; /* 横スクロールを許可 */
     -webkit-overflow-scrolling: touch; /* iOSのスクロールを滑らかに */
     gap: 8px;
-    padding: 1px 0 5px 0; /* 上下の余白を微調整 */
+    padding: 10px 0 5px 0; /* 上下の余白を微調整 */
    
     scrollbar-width: none; /* スクロールバーを隠す(Firefox) */
     transition: all 0.3s ease; /* 開閉時のアニメーション */
-    
 }
 
 /* ★閉じた時は高さゼロにして、余白も消す */
@@ -1418,20 +1435,21 @@ body #favoritesPage, body #shufflePage, body #databasePage {
       <div class="flex-spacer"></div>
 
          <!-- フィルター -->
-        <div class="filter-container">
-            <div class="filter-header" onclick="toggleFilter()" style="display: flex; align-items: center; gap: 1px;">
-    <h3 style="white-space: nowrap;">カテゴリー</h3> <span class="toggle-icon" id="toggleIcon">▶</span>
-            <div class="filter-buttons" id="filterButtons">
-                <button class="filter-btn active" onclick="filterCategory('all')">すべて</button>
-                <button class="filter-btn" onclick="filterCategory('経営者')">経営者</button>
-                <button class="filter-btn" onclick="filterCategory('デザイナー')">デザイナー</button>
-                <button class="filter-btn" onclick="filterCategory('エンジニア')">エンジニア</button>
-                <button class="filter-btn" onclick="filterCategory('マーケター')">マーケター</button>
-                <button class="filter-btn" onclick="filterCategory('営業')">営業</button>
-            </div>
+<div class="filter-container">
+        <div class="filter-header" onclick="toggleFilter()" style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <h3 style="white-space: nowrap; margin: 0;">カテゴリー</h3> 
+            <span class="toggle-icon" id="toggleIcon">▶</span>
         </div>
+        <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" onclick="filterCategory('all')">すべて</button>
+            <button class="filter-btn" onclick="filterCategory('経営者')">経営者</button>
+            <button class="filter-btn" onclick="filterCategory('デザイナー')">デザイナー</button>
+            <button class="filter-btn" onclick="filterCategory('エンジニア')">エンジニア</button>
+            <button class="filter-btn" onclick="filterCategory('マーケター')">マーケター</button>
+            <button class="filter-btn" onclick="filterCategory('営業')">営業</button>
         </div>
     </div>
+</div> ```
 
     <!-- データベースページ -->
 <div class="page" id="databasePage">
@@ -1751,14 +1769,16 @@ function switchPage(pageName) {
     // 3. 固定メニューの表示・非表示
     const fixedMenu = document.querySelector('.fixed-menu');
     if (fixedMenu) {
-        if (pageName === 'detail') {
-            fixedMenu.style.display = 'none'; // 詳細では消す
-            document.body.classList.add('detail-open');
-        } else {
-            fixedMenu.style.display = 'flex'; // それ以外では出す
-            document.body.classList.remove('detail-open');
-        }
+       if (pageName === 'shuffle') {
+        // シャッフルページが表示されたら、ボタンの位置まで少し遅らせてスクロール
+        setTimeout(() => {
+            const nextBtn = document.querySelector('.next-btn');
+            if (nextBtn) {
+                nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
     }
+}
     
     window.scrollTo(0, 0);
 
